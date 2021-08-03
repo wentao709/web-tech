@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>HW6</title>
+    <style type="text/css">
+      div.container {
+        position: absolute;
+        left: 50%;
+        background: #f2f2f2;
+        height: 200px;
+        width: 600px;
+        z-index: 15;
+        margin-left: -300px;
+      }
+      h1 {
+        margin-top: 0px;
+        font-size: 30px;
+        margin-bottom: 10px
+      }
+      div.ticketmaster{
+        padding-top: 230px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class = "container">
+      <h1 style="text-align: center"><i>Event Search</i></h1>
+      <hr></hr>
+      <form>
+        <div>
+            <label><b>Keyword</b></label>
+            <input type="text" id = "keyword" required></input>
+        </div>
+        
+        <div style="margin-top: 5px">
+          <label><b>Category</b></label>
+          <select name="cars" id="cars">
+            <option value="Default">Default</option>
+            <option value="Music">Music</option>
+            <option value="Sports">Sports</option>
+            <option value="Arts & Theatre">Arts & Theatre</option>
+            <option value="Film">Film</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+          </select>
+        </div>
+        <div style="margin-top: 5px">
+          <label><b>Distance(miles)</b></label>
+          <input type="text" placeholder="10" id = "dis"> </input>
+          <label><b>from</b></label>
+          <input onclick = "check()" type="radio" name="loc" id = "here"></input>
+          <label>Here</label>
+          <br>
+          <input onclick = "check()" type="radio" name="loc" id = "customize" style ="margin-left: 310px"></input>
+          <input placeholder="location" id = "inputloc" disabled required></input>
+        </div>
+
+        <div style="margin-left: 60px; margin-top: 5px">
+          <button type="submit" id = "search" onclick = "searches()">Search</button>
+          <button type="button" onclick = "searches()">Clear</button>
+        </div>
+      </form>
+    </div>
+    <div class="ticketmaster">
+      <table id = "table">
+
+      </table>
+    </div>>
+    <div id = "demon"></div>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="Geohash.js"></script>
+    <script>
+     // import encode from Geohash.js;
+      var xhttp;
+      var jsonObj;
+      document.getElementById("search").disabled = true
+      if (window.XMLHttpRequest) {
+    // code for modern browsers
+        xhttp = new XMLHttpRequest();
+      } else {
+    // code for old IE browsers
+        xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      xhttp.open("GET", "http://ip-api.com/json", true);
+      xhttp.send();
+      
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          var jsonStr = xhttp.response;
+          jsonObj = JSON.parse(jsonStr);
+          document.getElementById("search").disabled = false;
+        }
+      };
+
+     
+
+      
+      
+    
+      function check() {
+          var el = document.getElementById("inputloc");
+          var radio = document.getElementById("customize");
+          if (!radio.checked){
+            document.getElementById("inputloc").disabled = true;
+          }
+          if (radio.checked){
+            document.getElementById("inputloc").disabled = false;
+          }
+      }
+      function searches(){
+        var ticketmasterAPI = "klqCnPk3EDGLFrnwLliloJLPMvfDxWvn";
+        var googleAPI = "AIzaSyAHof292fOsCGm0potmb5feKFl7QHe7dAQ";
+        var keyword= document.getElementById("keyword").value;
+        var distance = document.getElementById("dis").value;
+        var here = document.getElementById("here");
+        var location = document.getElementById("customize");
+        var lat;
+        var long;
+        var geohash;
+        if (here.checked){
+          lat = jsonObj.lat;
+          long = jsonObj.lon;
+          geohash = Geohash.encode(lat, long, 7);
+        }else if(location.checked){
+          var loc = document.getElementById("inputloc").value;
+          var encodedloc = encodeURIComponent(loc);
+          var geoloc = "https://maps.googleapis.com/maps/api/geocode/json?address" + encodedloc + "&key=" + googleAPI;
+          jQuery.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=University+of+So uthern+California+CA&key=AIzaSyAHof292fOsCGm0potmb5feKFl7QHe7dAQ", function(result){
+            lat = result.results[0].geometry.location.lat;
+            long = result.results[0].geometry.location.lng;
+            geohash = Geohash.encode(lat, long, 7);
+          });
+        }
+        var ticketmasterURL =  "https://app.ticketmaster.com/discovery/v2/events.json?apikey= klqCnPk3EDGLFrnwLliloJLPMvfDxWvn &keyword=rams&segmentId=KZFzniwnSyZfZ7v7nE &radius=10&unit=miles&geoPoint=9q5cs";
+        jQuery.getJSON(ticketmasterURL, function(result){
+          json = result._embedded.events;
+          console.log(json.length);
+          var table = document.getElementById("table");
+          var row = table.insertRow(0);
+          var cell1 = row.insertCell(0);
+          cell1.innerHTML = "NEW CELL1";
+          for (var i = 0; i < json.length; i++){
+         //   table.insertRow(i)
+            console.log(json[i]);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
