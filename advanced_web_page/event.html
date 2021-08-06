@@ -22,6 +22,7 @@
         padding-top: 230px;
         height: auto;
       }
+      
     </style>
   </head>
   <body>
@@ -63,11 +64,9 @@
       </form>
     </div>
     <div class="ticketmaster">
-      <table id = "table">
-
-      </table>
-    </div>>
-    <div id = "demon"></div>
+      <p id = "table">
+      </p>
+    </div>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="Geohash.js"></script>
     <script>
@@ -134,16 +133,43 @@
         }
         var ticketmasterURL =  "https://app.ticketmaster.com/discovery/v2/events.json?apikey= klqCnPk3EDGLFrnwLliloJLPMvfDxWvn &keyword=rams&segmentId=KZFzniwnSyZfZ7v7nE &radius=10&unit=miles&geoPoint=9q5cs";
         jQuery.getJSON(ticketmasterURL, function(result){
-          json = result._embedded.events;
+          var table = "";
+          table = "<table border='1'>";
+          table+= "<tbody>";
+          table+= "<tr>";
+          table+= "<th style='width:85px'>Date</th>";
+          table+= "<th style='width:75px'>Icon</th>";
+          table+= "<th style='width:400px'>Event</th>";
+          table+= "<th style='width:100px'>Genre</th>";
+          table+= "<th style='width:300px'>Venue</th>";
+          table+= "</tr>";
+          json = result._embedded;
           console.log(json.length);
-          var table = document.getElementById("table");
-          var row = table.insertRow(0);
-          var cell1 = row.insertCell(0);
-          cell1.innerHTML = "NEW CELL1";
-          for (var i = 0; i < json.length; i++){
-         //   table.insertRow(i)
+         // var row_title = ;
+          for (var i = 0; i < 10; i++){
+            table+= "<tr>";
+            var id=result._embedded.events[i].id;
+            var date= json.events[i].dates.start.localDate + "<br>" + json.events[i].dates.start.localTime;
+            var image = json.events[i].images[0].url;
+            var name = json.events[i].name;
+            var genre = json.events[i].classifications[0].segment.name;
+            table+= "<td>" + date + "</td>";
+            table+= "<td><image src='" + image + "' height = 40px></image></td>";
+            table+="<td>" + name + "</td>";
+            table+="<td>" + genre + "</td>";
+            table+="/<tr>";
+            //cell1.style.border = "1px solid black";
+            
+            document.getElementById("table").innerHTML = table;
+            
+            
+
             console.log(json[i]);
-          }
+          } 
+          table+= "</tbody>";
+          table+="</table>";
+          document.getElementById("table").innerHTML = table;
+          
         });
       }
     </script>
